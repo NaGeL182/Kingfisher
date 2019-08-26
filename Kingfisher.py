@@ -17,6 +17,7 @@ import threading
 import traceback
 
 
+from config import version, owner, gh_factions, gh_areas, typ_colours, command_prefix
 import discord  # the crown jewel
 import aiohttp
 import gspread
@@ -29,7 +30,7 @@ from pytz import timezone
 from ruamel.yaml import YAML
 from operator import itemgetter
 
-version = "0.2.1a Turn Tracker"
+
 ###useful resources
 #for colours
 #www.htmlcsscolor.com/hex
@@ -40,60 +41,30 @@ version = "0.2.1a Turn Tracker"
 #TODO: ranking rework
 #TODO: add server configuration
 
-#gh stuff
-gh_factions = {"grove":ImageColor.getrgb("#c9781e"),"utopia":ImageColor.getrgb("#c72727"),"vanguard":ImageColor.getrgb("#2ec870"),"labyrinth":ImageColor.getrgb("#bff360"),
-               "phalanx":ImageColor.getrgb("#ffcc00"),
-               "lost":ImageColor.getrgb("#ffb293"),"convocation":ImageColor.getrgb("#8949ca"),"neutral":(255,255,255), "independent":(163, 145, 108)}
-#"x":ImageColor.getrgb("x"),
-#
-#old factions: "division":(76, 140, 255), "prestige":(179, 86, 243), "daybreak":(236,42,18), "elite":(241, 196, 15),
-# "demons":ImageColor.getrgb("#ff7a00"),"valhalla":(241, 196, 15),
-#"court":(101, 111, 255),"dominion":(192, 49, 53),"children":(155, 89, 182),"fixers":ImageColor.getrgb("#f8e900"),
-#"prosperity":ImageColor.getrgb("#d4af37") "safeguard":ImageColor.getrgb("#8f34e2")
-#"warmongers":ImageColor.getrgb("#f18f22"),"haven":ImageColor.getrgb("#a26cfc"),"union":ImageColor.getrgb("#c40000"),"stronghold":ImageColor.getrgb("#7498b4") ,
-#"avalon":(173, 20, 87),"uplift":(26, 151, 73), "veil":ImageColor.getrgb("#3498db"),"royals":ImageColor.getrgb("#ff69b4"),
 
-# discord default colours: https://www.reddit.com/r/discordapp/comments/849bxc/what_are_the_hex_values_of_all_the_default_role/dvo5k3g/
 
-gh_areas = [(100,122),(132.67,120),(192,118.6666667),(234.6666667,140.6666667),(268.6666667,165.3333333),(313.3333333,129.3333333),(372.6666667,126),(429.3333333,60),
-            (473.3333333,20),(458.6666667,81.33333333),(498.6666667,53.33333333),(477.3333333,130),(482,162.6666667),(492,217.3333333),(415.3333333,207.3333333),(369.3333333,192),
-            (293.3333333,194.6666667),(226.6666667,203.3333333),(166.6666667,184),(150.6666667,229.3333333),(113.3333333,224.6666667),(114,283.3333333),(181.3333333,234),
-            (215.3333333,228.6666667),(262.6666667,238),(223.3333333,286),(379.3333333,230.6666667),(440.6666667,272.6666667),(464.6666667,241.3333333),(498,291.3333333),(490,320),
-            (410,308),(351.3333333,278),(357.3333333,318),(250.6666667,322),(214.6666667,338),(134.6666667,309.3333333),(170.6666667,344.6666667),(166.6666667,378),(166,428),
-            (239.3333333,392),(244.6666667,428),(278,376.6666667),(318,387.3333333),(316.6666667,433.3333333),(393.3333333,352.6666667),(359.3333333,412.6666667),(422.6666667,387.3333333),
-            (458.6666667,378),(490.6666667,394.6666667),(494,458.6666667),(430.6666667,420.6666667),(439.3333333,459.3333333),(350.6666667,475.3333333),(271.3333333,494),
-            (229.3333333,499.3333333),(190,484.6666667),(148,460),(174.6666667,509.3333333),(190.6666667,545.3333333),(278,546.6666667),(331.3333333,524),(380,553.3333333),
-            (422.6666667,525.3333333),(455.3333333,512.6666667),(498,525.3333333)]
 
-typ_colours = {"Bash":0x0137f6,"Pierce":0xffa500,"Cut":0xb22649,"Freeze":0x00ecff,"Shock":0xd6ff00,"Rend":0x9937a5,"Burn":0x0fe754, "Poison":0x334403,
-               "Armor":0x565759,"Engine":0x565759,"Wheel":0x565759,"System":0x565759,"Structural":0x565759}
 muted_usr = []
-
 
 clientloop = asyncio.new_event_loop()
 asyncio.set_event_loop(clientloop)
-owner = [138340069311381505]  # hyper#4131
+
 
 logging.basicConfig(level=logging.INFO)
-# logger = logging.getLogger('discord')
-# logger.setLevel(logging.DEBUG)
-# handler = logging.FileHandler(filename=f'discord.log', encoding='utf-8', mode='a')
-# handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-# logger.addHandler(handler)2
 
 # pylint suppressions
 # pylint: disable=E0102, W1401
 
 # Setup the Sheets API
-scope = ['https://spreadsheets.google.com/feeds',
+'''scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive',
          'https://www.googleapis.com/auth/spreadsheets.readonly']
 credentials = ServiceAccountCredentials.from_json_keyfile_name('gspread.json', scope)
-gc = gspread.authorize(credentials)
+gc = gspread.authorize(credentials)'''
 
 feed=[[],[],[]]
 #kingfisher reference doc
-with open("Reference.txt", 'r') as f:
+'''with open("Reference.txt", 'r') as f:
         reference=f.read()
 RefSheet = gc.open_by_key(reference) # kf reference doc
 sheet = RefSheet.worksheet("Wounds") # wd20
@@ -114,14 +85,14 @@ triggerfeed = triggerSheet.get_all_values()
 #vials
 VialDoc = gc.open_by_key("1yksmYY7q1GKx4tXVpb7oSxffgEh--hOvXkDwLVgCdlg") # arcan's vial doc
 sheet = VialDoc.worksheet("Full Vials")
-vialfeed = sheet.get_all_values()
+vialfeed = sheet.get_all_values()'''
 sPlanner = sched.scheduler(time.time, time.sleep) # class sched.scheduler(timefunc=time.monotonic, delayfunc=time.sleep)
 
 #global variables
 macros={}
 
 # Here you can modify the bot's prefix and description and whether it sends help in direct messages or not.
-bot = Bot(description=f"Thinkerbot version {version}", command_prefix=(">","<",";"), pm_help=False, case_insensitive=True,owner_id=138340069311381505)
+bot = Bot(description=f"Thinkerbot version {version}", command_prefix=command_prefix, pm_help=False, case_insensitive=True,owner_id=owner)
 
 
 # This is what happens every time the bot launches. In this case, it prints information like server count, user count the bot is connected to, and the bot id in the console.

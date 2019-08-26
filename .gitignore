@@ -119,3 +119,6 @@ roll_macros.txt
 decay457290411698814980.txt
 bm.yaml
 .flake8
+
+#setting file do NOT comit this.
+config.py
