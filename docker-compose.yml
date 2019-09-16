@@ -4,15 +4,27 @@ services:
   kingfisher:
     build: ./
     image: kingfisher
+    container_name: kingfisher
+    volumes:
+      - type: bind
+        source: ./kingfisher
+        target: /workspace/kingfisher
     depends_on:
       - db
-
   db:
     image: postgres:11
     restart: always
+    container_name: kingfisherdb
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres-passwd
       POSTGRES_USER_FILE: /run/secrets/postgres-user
+    #data persistance
+    #not the way i like but that doesnt wok with postgress only with mysql
+    # https://stackoverflow.com/a/40333074/1297666
+    volumes:
+      - type: volume
+        source: db-data
+        target: /var/lib/postgresql/data
     secrets:
       - postgres-passwd
       - postgres-user
@@ -21,15 +33,19 @@ services:
   #that should help with using adminer
   adminer:
     image: adminer
+    container_name: kingfisheradminer
     restart: always
     ports:
       - 8080:8080
     depends_on:
       - db
 
+volumes:
+  db-data:
+    name: kingfisher-data
 
 secrets:
   postgres-passwd:
-    file: ./config/docker_secrets/postgres-passwd
+    file: ./docker/secrets/postgres-passwd
   postgres-user:
-    file: ./config/docker_secrets/postgres-user
+    file: ./docker/secrets/postgres-user

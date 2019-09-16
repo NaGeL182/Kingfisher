@@ -17,7 +17,7 @@ import threading
 import traceback
 
 
-from config import version, owner, gh_factions, gh_areas, typ_colours, command_prefix
+from kingfisher.config import version, owner, gh_factions, gh_areas, typ_colours, command_prefix
 import discord  # the crown jewel
 import aiohttp
 import gspread
@@ -25,8 +25,7 @@ import pytz
 from discord.ext import commands
 from discord.ext.commands import Bot, Cog
 from oauth2client.service_account import ServiceAccountCredentials
-from PIL import Image, ImageDraw, ImageColor
-from pytz import timezone
+from PIL import Image, ImageDraw
 from ruamel.yaml import YAML
 from operator import itemgetter
 

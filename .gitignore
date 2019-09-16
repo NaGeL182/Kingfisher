@@ -147,5 +147,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#docker secrets
-config/docker_secrets/*
+#docker stuffs to ignore
+docker/secrets
+
+#config file
+kingfisher/config/config.py
