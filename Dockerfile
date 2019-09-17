@@ -27,3 +27,4 @@ COPY ./kingfisher /workspace/kingfisher
 WORKDIR /workspace/kingfisher
 
 CMD ["python", "kingfisher.py"]
+#CMD ["sh", "empty.sh"]

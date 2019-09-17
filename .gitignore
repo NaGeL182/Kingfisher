@@ -152,3 +152,5 @@ docker/secrets
 
 #config file
 kingfisher/config/config.py
+#log folder
+logs/

@@ -1,0 +1,13 @@
+import logging
+token = 'bottoken'
+command_prefix = (">", "<", ";")
+owner = []
+# more at https://docs.python.org/3.7/library/logging.handlers.html#timedrotatingfilehandler
+log = {
+    'file': 'logs/kingfisher.log',
+    'when': 'D',
+    'interval': 1,
+    'backupCount': 7,
+    'utc': True,
+    'level': logging.DEBUG,
+}
