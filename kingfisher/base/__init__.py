@@ -1,4 +1,4 @@
-from .logging import Logging
+from .Logging import Logging
 
 
 def setup(bot):

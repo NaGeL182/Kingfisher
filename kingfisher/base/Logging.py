@@ -6,6 +6,8 @@ import platform
 
 class Logging(Cog, name="Logging"):
 
+    logger = None
+
     def __init__(self, bot):
         self.bot = bot
         self.logger = logging.getLogger(__name__)
