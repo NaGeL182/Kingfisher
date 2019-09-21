@@ -1,0 +1,46 @@
+version: 1
+formatters:
+  default:
+    format: '[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    stream: ext://sys.stdout
+    formatter: default
+
+  file_rotating:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: DEBUG
+    filename: 'logs/kingfisher.log'
+    when: 'D'
+    interval: 1
+    backupCount: 7
+    utc: True
+    formatter: default
+
+  discord_console:
+    class: logging.StreamHandler
+    level: WARNING
+    stream: ext://sys.stdout
+    formatter: default
+
+  discord_file_rotating:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: DEBUG
+    filename: 'logs/discord.log'
+    when: 'D'
+    interval: 1
+    backupCount: 7
+    utc: True
+    formatter: default
+
+loggers:
+  discord:
+    handlers: [discord_console, discord_file_rotating]
+    propagate: no
+
+root:
+  level: DEBUG
+  handlers: [console, file_rotating]
