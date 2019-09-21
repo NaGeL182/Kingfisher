@@ -11,12 +11,17 @@ RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* 
 ENV LANG en_US.utf8
 
 #installing python and seting as default version
-RUN apt-get update && apt-get install python3.7 python3-pip python3-psycopg2 -y
+RUN apt-get update && apt-get install python3.7 python3-pip -y
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1 && \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
 #voice support
 RUN apt-get update && apt-get install libffi-dev python3.6-dev -y
+
+#For Database stuffs
+RUN apt-get update && apt-get install libpq-dev python3.7-dev libpq5 -y
+
+
 #installing default reqs
 COPY kingfisher/requirements.txt /tmp/
 RUN python -m pip install -r /tmp/requirements.txt
@@ -26,5 +31,5 @@ RUN mkdir -p /workspace/kingfisher
 COPY ./kingfisher /workspace/kingfisher
 WORKDIR /workspace/kingfisher
 
-CMD ["python", "kingfisher.py"]
-#CMD ["sh", "empty.sh"]
+#CMD ["python", "kingfisher.py"]
+CMD ["sh", "empty.sh"]

@@ -154,3 +154,5 @@ docker/secrets
 kingfisher/config/config.py
 #log folder
 logs/
+# migration ignore
+/kingfisher/alembic.ini

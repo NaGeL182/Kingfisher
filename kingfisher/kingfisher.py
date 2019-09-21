@@ -9,13 +9,11 @@ version = f"{major_version}.{minor_version}.{patch_version}"
 
 
 def create_bot():
-    db = {}
     return KingfisherBot(
         description=f"Thinkerbot version {version}",
         command_prefix=config.command_prefix,
         case_insensitive=True,
         owner_id=config.owner,
-        db=db,
         config=config,
     )
 
