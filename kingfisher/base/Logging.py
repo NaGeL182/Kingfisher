@@ -33,8 +33,16 @@ class Logging(Cog, name="Logging"):
 
     @Cog.listener()
     async def on_member_remove(self, member):
-        self.logger.debug(f"{member.name} left {member.guild.name}")
+        self.logger.debug(f"{member.name} left {member.guild.name} server")
 
     @Cog.listener()
     async def on_command_error(self, context, exception):
         self.logger.exception(exception)
+
+    @Cog.listener()
+    async def on_guild_join(self, guild):
+        self.logger.debug(f"Joined {guild.name} server.")
+
+    @Cog.listener()
+    async def on_guild_remove(self, guild):
+        self.logger.debug(f"removed from {guild.name} server.")

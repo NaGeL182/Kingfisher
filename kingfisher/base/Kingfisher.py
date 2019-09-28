@@ -4,7 +4,6 @@ import yaml
 from logging import config as log_config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from .models.config import Config
 
 
 class KingfisherBot(Bot):
