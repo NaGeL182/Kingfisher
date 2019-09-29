@@ -4,7 +4,6 @@ import yaml
 from logging import config as log_config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from .models import Base
 
 
 class KingfisherBot(Bot):
@@ -30,6 +29,4 @@ class KingfisherBot(Bot):
         self.engine = create_engine(self.config.db_url)
         # we gonna use self.Session() to create sessions where we gonna communicate with the DB
         self.Session = sessionmaker(self.engine)
-
-        Base.metadata.create_all(self.engine)
 

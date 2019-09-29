@@ -53,8 +53,8 @@ class Role(Base):
     rid = Column(Integer, unique=True)
     name = Column(String)
     server_id = Column(Integer, ForeignKey('servers.id'))
-    created_at = Column(DateTime, nullable=False)
-    deleted_at = Column(DateTime, nullable=True)
+    role_created_at = Column(DateTime, nullable=False)
+    role_deleted_at = Column(DateTime, nullable=True)
 
     server = relationship("Server", back_populates="roles")
     flags = relationship("RoleFlag", back_populates="role")

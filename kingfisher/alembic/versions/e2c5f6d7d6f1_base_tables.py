@@ -46,9 +46,72 @@ def upgrade():
     )
 
     op.create_table(
+        'roles',
+        Column('id', Integer, primary_key=True),
+        Column('rid', Integer, unique=True),
+        Column('name', String),
+        Column('server_id', Integer, ForeignKey('servers.id')),
+        Column('role_created_at', DateTime, nullable=False),
+        Column('role_deleted_at', DateTime, nullable=True),
+        Column('created_at', DateTime, nullable=False, server_default=func.now()),
+        Column('updated_at', DateTime, nullable=True, server_default=text('NULL')),
+    )
+
+    op.create_table(
+        'users',
+        Column('id', Integer, primary_key=True),
+        Column('uid', Integer, unique=True),
+        Column('name', String),
+        Column('discriminator', String),
+        Column('created_at', DateTime, nullable=False, server_default=func.now()),
+        Column('updated_at', DateTime, nullable=True, server_default=text('NULL')),
+    )
+
+    op.create_table(
+        'members',
+        Column('id', Integer, primary_key=True),
+        Column('user_id', Integer, ForeignKey('users.id')),
+        Column('server_id', Integer, ForeignKey('servers.id')),
+        Column('joined_at', DateTime, nullable=False),
+        Column('left_at', DateTime, nullable=True),
+        Column('created_at', DateTime, nullable=False, server_default=func.now()),
+        Column('updated_at', DateTime, nullable=True, server_default=text('NULL')),
+    )
+
+    op.create_table(
         'server_flags',
         Column('id', Integer, primary_key=True),
         Column('server_id', Integer, ForeignKey('servers.id')),
+        Column('name', String),
+        Column('value', String, nullable=True, server_default='NULL'),
+        Column('created_at', DateTime, nullable=False, server_default=func.now()),
+        Column('updated_at', DateTime, nullable=True, server_default=text('NULL')),
+    )
+
+    op.create_table(
+        'role_flags',
+        Column('id', Integer, primary_key=True),
+        Column('role_id', Integer, ForeignKey('roles.id')),
+        Column('name', String),
+        Column('value', String, nullable=True, server_default='NULL'),
+        Column('created_at', DateTime, nullable=False, server_default=func.now()),
+        Column('updated_at', DateTime, nullable=True, server_default=text('NULL')),
+    )
+
+    op.create_table(
+        'user_flags',
+        Column('id', Integer, primary_key=True),
+        Column('user_id', Integer, ForeignKey('users.id')),
+        Column('name', String),
+        Column('value', String, nullable=True, server_default='NULL'),
+        Column('created_at', DateTime, nullable=False, server_default=func.now()),
+        Column('updated_at', DateTime, nullable=True, server_default=text('NULL')),
+    )
+
+    op.create_table(
+        'member_flags',
+        Column('id', Integer, primary_key=True),
+        Column('member_id', Integer, ForeignKey('members.id')),
         Column('name', String),
         Column('value', String, nullable=True, server_default='NULL'),
         Column('created_at', DateTime, nullable=False, server_default=func.now()),
