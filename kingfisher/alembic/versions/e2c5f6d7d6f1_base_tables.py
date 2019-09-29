@@ -37,7 +37,7 @@ def upgrade():
     op.create_table(
         'servers',
         Column('id', Integer, primary_key=True),
-        Column('guid', Integer, unique=True),
+        Column('sid', Integer, unique=True),
         Column('name', String),
         Column('joined_at', DateTime, nullable=False, server_default=func.now()),
         Column('left_at', DateTime, nullable=True, server_default=text('NULL')),
