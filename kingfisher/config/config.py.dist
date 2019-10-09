@@ -1,4 +1,3 @@
-import logging
 token = 'bottoken'
 command_prefix = (">", "<", ";")
 owner = []

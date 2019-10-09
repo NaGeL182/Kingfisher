@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy import Column, Integer, DateTime, func, text, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, DateTime, func, text, String, Boolean, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
 # I hate this setup
@@ -45,6 +45,25 @@ class Server(Base):
     flags = relationship("ServerFlag", back_populates="server")
     roles = relationship("Role", back_populates="server")
     members = relationship("Member", back_populates="server")
+    server_configs = relationship("ServerConfig", back_populates="server")
+
+
+class ServerConfig(Base):
+    __tablename__ = "server_config"
+
+    server_id = Column(Integer, ForeignKey('servers.id'))
+    name = Column(String)
+    value = Column(String)
+
+    server = relationship("Server", back_populates="server_configs")
+
+
+member2Role_table = Table(
+    'member2role',
+    Base.metadata,
+    Column('member_id', Integer, ForeignKey('members.id')),
+    Column('role_id', Integer, ForeignKey('roles.id'))
+)
 
 
 class Role(Base):
@@ -53,11 +72,12 @@ class Role(Base):
     rid = Column(Integer, unique=True)
     name = Column(String)
     server_id = Column(Integer, ForeignKey('servers.id'))
-    created_at = Column(DateTime, nullable=False)
-    deleted_at = Column(DateTime, nullable=True)
+    role_created_at = Column(DateTime, nullable=False)
+    role_deleted_at = Column(DateTime, nullable=True)
 
     server = relationship("Server", back_populates="roles")
     flags = relationship("RoleFlag", back_populates="role")
+    members = relationship("Member", secondary=member2Role_table, back_populates="roles")
 
 
 class User(Base):
@@ -82,6 +102,7 @@ class Member(Base):
     user = relationship("User", back_populates="members")
     server = relationship("Server", back_populates="members")
     flags = relationship("MemberFlag", back_populates="user")
+    roles = relationship("Role", secondary=member2Role_table, back_populates="members")
 
 
 class FlagBase(object):
