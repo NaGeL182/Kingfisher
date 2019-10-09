@@ -3,8 +3,8 @@ import os
 import yaml
 from logging import config as log_config
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from .models import Base, Server, Member, Role, User
+from sqlalchemy.orm import sessionmaker, scoped_session
+from contextlib import contextmanager
 from pprint import pprint
 
 
@@ -13,7 +13,7 @@ class KingfisherBot(Bot):
         super().__init__(command_prefix, **options)
         self.config = config
         self._setup_logging()
-        self._setup_engine()
+        self._setup_database()
 
     @staticmethod
     def _setup_logging():
@@ -26,9 +26,25 @@ class KingfisherBot(Bot):
         logging_conf = open(f"{path}/../config/logging.yaml", 'r')
         log_config.dictConfig(yaml.load(logging_conf, Loader=yaml.SafeLoader))
 
-    def _setup_engine(self):
+    def _setup_database(self):
         # engine creates the basic database connection and ORM
-        self.engine = create_engine(self.config.db_url)
-        # we gonna use self.Session() to create sessions where we gonna communicate with the DB
-        self.Session = sessionmaker(self.engine)
+        self._engine = create_engine(self.config.db_url)
+        # we creating contectual Thrad local sessons:
+        # https://docs.sqlalchemy.org/en/13/orm/contextual.html#unitofwork-contextual
+        self._session_factory = sessionmaker(bind=self._engine)
+
+    def _create_session(self):
+        return scoped_session(self._session_factory)()
+
+    # https://docs.sqlalchemy.org/en/13/orm/session_basics.html#when-do-i-construct-a-session-when-do-i-commit-it-and-when-do-i-close-it
+    @contextmanager
+    def get_session(self):
+        session = self._create_session()
+        try:
+            yield session
+            session.commit()
+        except:
+            session.rollback()
+        finally:
+            session.close()
 

@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy import Column, Integer, DateTime, func, text, String, Boolean, ForeignKey, Table
+from sqlalchemy import Column, Integer, DateTime, func, text, String, Boolean, ForeignKey, Table, BigInteger
 from sqlalchemy.orm import relationship
 
 # I hate this setup
@@ -37,7 +37,9 @@ class Extension(Base):
 class Server(Base):
     __tablename__ = "servers"
 
-    sid = Column(Integer, unique=True)
+    # Big Integer cuz discord has a big Dick
+    # pfff, naj just the ID is 18 character long integer.
+    sid = Column(BigInteger, unique=True)
     name = Column(String)
     joined_at = Column(DateTime, nullable=False, server_default=func.now())
     left_at = Column(DateTime, nullable=True, server_default=text('NULL'))
@@ -69,7 +71,7 @@ member2Role_table = Table(
 class Role(Base):
     __tablename__ = "roles"
 
-    rid = Column(Integer, unique=True)
+    rid = Column(BigInteger, unique=True)
     name = Column(String)
     server_id = Column(Integer, ForeignKey('servers.id'))
     role_created_at = Column(DateTime, nullable=False)
@@ -83,7 +85,7 @@ class Role(Base):
 class User(Base):
     __tablename__ = "users"
 
-    uid = Column(Integer, unique=True)
+    uid = Column(BigInteger, unique=True)
     name = Column(String)
     discriminator = Column(String)
 

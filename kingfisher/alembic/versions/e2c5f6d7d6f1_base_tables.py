@@ -6,7 +6,7 @@ Create Date: 2019-09-21 17:47:34.576965
 
 """
 from alembic import op
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, func, text, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, func, text, ForeignKey, BigInteger
 
 
 # revision identifiers, used by Alembic.
@@ -37,7 +37,7 @@ def upgrade():
     op.create_table(
         'servers',
         Column('id', Integer, primary_key=True),
-        Column('sid', Integer, unique=True),
+        Column('sid', BigInteger, unique=True),
         Column('name', String),
         Column('joined_at', DateTime, nullable=False, server_default=func.now()),
         Column('left_at', DateTime, nullable=True, server_default=text('NULL')),
@@ -58,7 +58,7 @@ def upgrade():
     op.create_table(
         'roles',
         Column('id', Integer, primary_key=True),
-        Column('rid', Integer, unique=True),
+        Column('rid', BigInteger, unique=True),
         Column('name', String),
         Column('server_id', Integer, ForeignKey('servers.id')),
         Column('role_created_at', DateTime, nullable=False),
@@ -70,7 +70,7 @@ def upgrade():
     op.create_table(
         'users',
         Column('id', Integer, primary_key=True),
-        Column('uid', Integer, unique=True),
+        Column('uid', BigInteger, unique=True),
         Column('name', String),
         Column('discriminator', String),
         Column('created_at', DateTime, nullable=False, server_default=func.now()),
