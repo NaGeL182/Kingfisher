@@ -120,7 +120,8 @@ class Member(Base):
     def name(self, value):
         self.user.name = value
 
-    # thi is needed for relationship hybrid properties, so its knows its needs join.
+    # this is needed for relationship hybrid properties, so its knows its needs join.
+    # join is still needed in querying!
     @name.expression
     def name(cls):
         return User.name
@@ -148,6 +149,14 @@ class Member(Base):
     @discriminator.expression
     def discriminator(cls):
         return User.discriminator
+
+    @hybrid_property
+    def sid(self):
+        return self.server.sid
+
+    @sid.expression
+    def sid(cls):
+        return Server.sid
 
 
 class FlagBase(object):

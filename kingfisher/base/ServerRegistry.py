@@ -41,34 +41,36 @@ class ServerRegistry(Cog, name="ServerRegistry"):
             else:
                 # we were already on the server so just update the joined at
                 self.logger.info(f"Rejoined Guild: {guild.name}")
-                server = self._get_server_from_guild(session, guild)
+                server = self.get_server_from_guild(session, guild)
                 server. joined_at = guild.me.joined_at
 
     @Cog.listener()
     async def on_guild_update(self, before: Guild, after: Guild):
         with self.bot.get_session() as session:
-            server = self._get_server_from_guild(session, after)
+            server = self.get_server_from_guild(session, after)
             if not server:
                 raise ServerNotFoundException(after)
             if before.name != after.name:
                 self.logger.info(f"{before.name} renamed to {after.name}")
                 server.name = after.name
 
+    # TODO: on_guild_role_create, on_guild_role_delete, on_guild_role_update
+
     @Cog.listener()
     async def on_guild_remove(self, guild: Guild):
         with self.bot.get_session() as session:
             self.logger.info(f"left  server `{guild.name}` at {datetime.now()}")
-            server = self._get_server_from_guild(session, guild)
+            server = self.get_server_from_guild(session, guild)
             if not server:
                 raise ServerNotFoundException(guild)
             server.left_at = datetime.now()
 
     @classmethod
     def _check_server_registered(cls, session: Session, guild: Guild) -> bool:
-        return bool(cls._get_server_from_guild(session, guild))
+        return bool(cls.get_server_from_guild(session, guild))
 
     @staticmethod
-    def _get_server_from_guild(session: Session, guild: Guild):
+    def get_server_from_guild(session: Session, guild: Guild):
         return session.query(Server).filter(Server.sid == guild.id).one_or_none()
 
     @staticmethod

@@ -49,7 +49,7 @@ class KingfisherBot(Bot):
             session.commit()
         except SQLAlchemyError as e:
             logging = getLogger(__name__)
-            logging.error(e)
+            logging.exception(e)
             session.rollback()
         finally:
             session.close()
