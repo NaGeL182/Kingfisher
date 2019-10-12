@@ -1,6 +1,10 @@
-from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from __future__ import annotations
+
 from sqlalchemy import Column, Integer, DateTime, func, text, String, Boolean, ForeignKey, Table, BigInteger
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
+
 
 # I hate this setup
 # The whole 1 file many classes thing
@@ -39,7 +43,7 @@ class Server(Base):
 
     # Big Integer cuz discord has a big Dick
     # pfff, naj just the ID is 18 character long integer.
-    sid = Column(BigInteger, unique=True)
+    sid = Column(BigInteger, unique=True, nullable=False)
     name = Column(String)
     joined_at = Column(DateTime, nullable=False, server_default=func.now())
     left_at = Column(DateTime, nullable=True, server_default=text('NULL'))
@@ -71,7 +75,7 @@ member2Role_table = Table(
 class Role(Base):
     __tablename__ = "roles"
 
-    rid = Column(BigInteger, unique=True)
+    rid = Column(BigInteger, unique=True, nullable=False)
     name = Column(String)
     server_id = Column(Integer, ForeignKey('servers.id'))
     role_created_at = Column(DateTime, nullable=False)
@@ -85,11 +89,10 @@ class Role(Base):
 class User(Base):
     __tablename__ = "users"
 
-    uid = Column(BigInteger, unique=True)
+    uid = Column(BigInteger, unique=True, nullable=False)
     name = Column(String)
     discriminator = Column(String)
 
-    flags = relationship("UserFlag", back_populates="user")
     members = relationship("Member", back_populates="user")
 
 
@@ -98,13 +101,53 @@ class Member(Base):
 
     user_id = Column(Integer, ForeignKey('users.id'))
     server_id = Column(Integer, ForeignKey('servers.id'))
-    joined_at = Column(DateTime, nullable=False)
+    joined_at = Column(DateTime, nullable=False, server_default=func.now())
     left_at = Column(DateTime, nullable=True)
 
     user = relationship("User", back_populates="members")
     server = relationship("Server", back_populates="members")
     flags = relationship("MemberFlag", back_populates="user")
     roles = relationship("Role", secondary=member2Role_table, back_populates="members")
+
+    # This is set up this way so wen we ask for Member.name we actually get User.name
+    # and should work with query as well.
+    @hybrid_property
+    def name(self):
+        return self.user.name
+
+    # this setter makes it so we can not only read but also set with Member.name
+    @name.setter
+    def name(self, value):
+        self.user.name = value
+
+    # thi is needed for relationship hybrid properties, so its knows its needs join.
+    @name.expression
+    def name(cls):
+        return User.name
+
+    @hybrid_property
+    def uid(self):
+        return self.user.uid
+
+    @uid.setter
+    def uid(self, value):
+        self.user.uid = value
+
+    @uid.expression
+    def uid(cls):
+        return User.uid
+
+    @hybrid_property
+    def discriminator(self):
+        return self.user.discriminator
+
+    @discriminator.setter
+    def discriminator(self, value):
+        self.user.discriminator = value
+
+    @discriminator.expression
+    def discriminator(cls):
+        return User.discriminator
 
 
 class FlagBase(object):
@@ -126,14 +169,6 @@ class RoleFlag(Base, FlagBase):
     role_id = Column(Integer, ForeignKey('roles.id'))
 
     role = relationship("Role", back_populates="flags")
-
-
-class UserFlag(Base, FlagBase):
-    __tablename__ = "user_flags"
-
-    user_id = Column(Integer, ForeignKey('users.id'))
-
-    user = relationship("User", back_populates="flags")
 
 
 class MemberFlag(Base, FlagBase):

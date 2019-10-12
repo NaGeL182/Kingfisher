@@ -1,11 +1,15 @@
-from discord.ext.commands import Bot
+from __future__ import annotations
+
 import os
-import yaml
-from logging import config as log_config
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
 from contextlib import contextmanager
-from pprint import pprint
+from logging import config as log_config, getLogger
+from typing import Iterator
+
+import yaml
+from discord.ext.commands import Bot
+from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import sessionmaker, scoped_session, Session
 
 
 class KingfisherBot(Bot):
@@ -33,17 +37,19 @@ class KingfisherBot(Bot):
         # https://docs.sqlalchemy.org/en/13/orm/contextual.html#unitofwork-contextual
         self._session_factory = sessionmaker(bind=self._engine)
 
-    def _create_session(self):
+    def _create_session(self) -> Session:
         return scoped_session(self._session_factory)()
 
     # https://docs.sqlalchemy.org/en/13/orm/session_basics.html#when-do-i-construct-a-session-when-do-i-commit-it-and-when-do-i-close-it
     @contextmanager
-    def get_session(self):
+    def get_session(self) -> Iterator[Session]:
         session = self._create_session()
         try:
             yield session
             session.commit()
-        except:
+        except SQLAlchemyError as e:
+            logging = getLogger(__name__)
+            logging.error(e)
             session.rollback()
         finally:
             session.close()

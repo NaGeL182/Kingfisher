@@ -1,11 +1,15 @@
-from discord.ext.commands import Cog
-from discord import Guild
+from __future__ import annotations
+
 import logging
-from .models import Server, Role
 from datetime import datetime
-from .Kingfisher import KingfisherBot
+
+from discord import Guild
+from discord.ext.commands import Cog
 from sqlalchemy.orm import Session
-from pprint import pprint
+
+from .Kingfisher import KingfisherBot
+from .exception import ServerNotFoundException
+from .models import Server, Role
 
 
 class ServerRegistry(Cog, name="ServerRegistry"):
@@ -40,13 +44,23 @@ class ServerRegistry(Cog, name="ServerRegistry"):
                 server = self._get_server_from_guild(session, guild)
                 server. joined_at = guild.me.joined_at
 
-    # TODO: on guild update
+    @Cog.listener()
+    async def on_guild_update(self, before: Guild, after: Guild):
+        with self.bot.get_session() as session:
+            server = self._get_server_from_guild(session, after)
+            if not server:
+                raise ServerNotFoundException(after)
+            if before.name != after.name:
+                self.logger.info(f"{before.name} renamed to {after.name}")
+                server.name = after.name
 
     @Cog.listener()
     async def on_guild_remove(self, guild: Guild):
         with self.bot.get_session() as session:
             self.logger.info(f"left  server `{guild.name}` at {datetime.now()}")
             server = self._get_server_from_guild(session, guild)
+            if not server:
+                raise ServerNotFoundException(guild)
             server.left_at = datetime.now()
 
     @classmethod
