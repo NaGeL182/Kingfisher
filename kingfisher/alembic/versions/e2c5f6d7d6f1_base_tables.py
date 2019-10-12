@@ -6,7 +6,7 @@ Create Date: 2019-09-21 17:47:34.576965
 
 """
 from alembic import op
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, func, text, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, func, text, ForeignKey, BigInteger
 
 
 # revision identifiers, used by Alembic.
@@ -37,7 +37,7 @@ def upgrade():
     op.create_table(
         'servers',
         Column('id', Integer, primary_key=True),
-        Column('sid', Integer, unique=True),
+        Column('sid', BigInteger, unique=True),
         Column('name', String),
         Column('joined_at', DateTime, nullable=False, server_default=func.now()),
         Column('left_at', DateTime, nullable=True, server_default=text('NULL')),
@@ -46,13 +46,23 @@ def upgrade():
     )
 
     op.create_table(
+        'server_config',
+        Column('id', Integer, primary_key=True),
+        Column('server_id', Integer, ForeignKey('servers.id')),
+        Column('name', String),
+        Column('value', String),
+        Column('created_at', DateTime, nullable=False, server_default=func.now()),
+        Column('updated_at', DateTime, nullable=True, server_default=text('NULL')),
+    )
+
+    op.create_table(
         'roles',
         Column('id', Integer, primary_key=True),
-        Column('rid', Integer, unique=True),
+        Column('rid', BigInteger, unique=True),
         Column('name', String),
         Column('server_id', Integer, ForeignKey('servers.id')),
         Column('role_created_at', DateTime, nullable=False),
-        Column('role_deleted_at', DateTime, nullable=True),
+        Column('role_deleted_at', DateTime, nullable=True, server_default=text('NULL')),
         Column('created_at', DateTime, nullable=False, server_default=func.now()),
         Column('updated_at', DateTime, nullable=True, server_default=text('NULL')),
     )
@@ -60,7 +70,7 @@ def upgrade():
     op.create_table(
         'users',
         Column('id', Integer, primary_key=True),
-        Column('uid', Integer, unique=True),
+        Column('uid', BigInteger, unique=True),
         Column('name', String),
         Column('discriminator', String),
         Column('created_at', DateTime, nullable=False, server_default=func.now()),
@@ -73,9 +83,15 @@ def upgrade():
         Column('user_id', Integer, ForeignKey('users.id')),
         Column('server_id', Integer, ForeignKey('servers.id')),
         Column('joined_at', DateTime, nullable=False),
-        Column('left_at', DateTime, nullable=True),
+        Column('left_at', DateTime, nullable=True, server_default=text('NULL')),
         Column('created_at', DateTime, nullable=False, server_default=func.now()),
         Column('updated_at', DateTime, nullable=True, server_default=text('NULL')),
+    )
+
+    op.create_table(
+        'member2role',
+        Column('member_id', Integer, ForeignKey('members.id')),
+        Column('role_id', Integer, ForeignKey('roles.id')),
     )
 
     op.create_table(

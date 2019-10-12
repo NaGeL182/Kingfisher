@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy import Column, Integer, DateTime, func, text, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, DateTime, func, text, String, Boolean, ForeignKey, Table, BigInteger
 from sqlalchemy.orm import relationship
 
 # I hate this setup
@@ -37,7 +37,9 @@ class Extension(Base):
 class Server(Base):
     __tablename__ = "servers"
 
-    sid = Column(Integer, unique=True)
+    # Big Integer cuz discord has a big Dick
+    # pfff, naj just the ID is 18 character long integer.
+    sid = Column(BigInteger, unique=True)
     name = Column(String)
     joined_at = Column(DateTime, nullable=False, server_default=func.now())
     left_at = Column(DateTime, nullable=True, server_default=text('NULL'))
@@ -45,12 +47,31 @@ class Server(Base):
     flags = relationship("ServerFlag", back_populates="server")
     roles = relationship("Role", back_populates="server")
     members = relationship("Member", back_populates="server")
+    server_configs = relationship("ServerConfig", back_populates="server")
+
+
+class ServerConfig(Base):
+    __tablename__ = "server_config"
+
+    server_id = Column(Integer, ForeignKey('servers.id'))
+    name = Column(String)
+    value = Column(String)
+
+    server = relationship("Server", back_populates="server_configs")
+
+
+member2Role_table = Table(
+    'member2role',
+    Base.metadata,
+    Column('member_id', Integer, ForeignKey('members.id')),
+    Column('role_id', Integer, ForeignKey('roles.id'))
+)
 
 
 class Role(Base):
     __tablename__ = "roles"
 
-    rid = Column(Integer, unique=True)
+    rid = Column(BigInteger, unique=True)
     name = Column(String)
     server_id = Column(Integer, ForeignKey('servers.id'))
     role_created_at = Column(DateTime, nullable=False)
@@ -58,12 +79,13 @@ class Role(Base):
 
     server = relationship("Server", back_populates="roles")
     flags = relationship("RoleFlag", back_populates="role")
+    members = relationship("Member", secondary=member2Role_table, back_populates="roles")
 
 
 class User(Base):
     __tablename__ = "users"
 
-    uid = Column(Integer, unique=True)
+    uid = Column(BigInteger, unique=True)
     name = Column(String)
     discriminator = Column(String)
 
@@ -82,6 +104,7 @@ class Member(Base):
     user = relationship("User", back_populates="members")
     server = relationship("Server", back_populates="members")
     flags = relationship("MemberFlag", back_populates="user")
+    roles = relationship("Role", secondary=member2Role_table, back_populates="members")
 
 
 class FlagBase(object):
