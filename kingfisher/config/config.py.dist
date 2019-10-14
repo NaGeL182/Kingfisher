@@ -1,5 +1,5 @@
 token = 'bottoken'
-command_prefix = (">", "<", ";")
+command_prefix = (">", ";")
 owner = []
 # REMEMBER TO MODIFY THE alembic.ini TOO!
 db_url = "postgresql://DB_USER:DB_PWD@kingfisherdb/DBNAME-SAME-AS-DB_USER"
